@@ -9,7 +9,7 @@ pub struct Editor {
 
 impl Editor {
     pub const fn default() -> Self {
-        Self { should_quit: false }
+        return Self { should_quit: false }
     }
     pub fn run(&mut self) {
         Terminal::initialize().unwrap();
@@ -27,7 +27,7 @@ impl Editor {
             let event = read()?;
             self.evaluate_event(&event);
         }
-        Ok(())
+        return Ok(())
     }
     fn evaluate_event(&mut self, event: &Event) {
         if let Key(KeyEvent {
@@ -53,7 +53,7 @@ impl Editor {
         }
         Terminal::show_cursor()?;
         Terminal::execute()?;
-        Ok(())
+        return Ok(())
     }
     fn draw_rows() -> Result<(), std::io::Error> {
         let Size{height, ..} = Terminal::size()?;
@@ -64,6 +64,6 @@ impl Editor {
                 Terminal::print("\r\n")?;
             }
         }
-        Ok(())
+        return Ok(())
     }
 }

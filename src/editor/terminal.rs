@@ -21,51 +21,51 @@ impl Terminal {
     pub fn terminate() -> Result<(), Error> {
         Self::execute()?;
         disable_raw_mode()?;
-        Ok(())
+        return Ok(())
     }
     pub fn initialize() -> Result<(), Error> {
         enable_raw_mode()?;
         Self::clear_screen()?;
         Self::move_cursor_to(Position{x:0,y: 0})?;
         Self::execute()?;
-        Ok(())
+        return Ok(())
     }
     pub fn clear_screen() -> Result<(), Error> {
         queue!(stdout(), Clear(ClearType::All))?;
-        Ok(())
+        return Ok(())
     }
 
     pub fn clear_line() -> Result<(), Error> {
         queue!(stdout(), Clear(ClearType::CurrentLine))?;
-        Ok(())
+        return Ok(())
     }
 
     pub fn move_cursor_to(position: Position) -> Result<(), Error> {
         queue!(stdout(), MoveTo(position.x, position.y))?;
-        Ok(())
+        return Ok(())
     }
     pub fn size() -> Result<Size, Error> {
         let (.., height) = size()?;
-        Ok(Size { height })
+        return Ok(Size { height })
     }
 
     pub fn hide_cursor() -> Result<(), Error> {
         queue!(stdout(), Hide)?;
-        Ok(())
+        return Ok(())
     }
     
     pub fn show_cursor() -> Result<(), Error> {
         queue!(stdout(), crossterm::cursor::Show)?;
-        Ok(())
+        return Ok(())
     }
     
     pub fn print(string: &str) -> Result<(), Error> {
         queue!(stdout(), Print(string))?;
-        Ok(())
+        return Ok(())
     }
 
     pub fn execute() -> Result<(), Error> {
         stdout().flush()?;
-        Ok(())
+        return Ok(())
     }
 }
