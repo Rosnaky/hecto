@@ -1,4 +1,4 @@
-use crossterm::event::{read, Event::{self, Key}, KeyCode::{self}, KeyEvent, KeyEventKind, KeyModifiers};
+use crossterm::event::{read, Event::{self}, KeyCode::{self}, KeyEvent, KeyEventKind, KeyModifiers};
 mod terminal;
 mod view;
 use terminal::{Size, Position, Terminal};
@@ -42,7 +42,7 @@ impl Editor {
                 break;
             }
             let event = read()?;
-            self.evaluate_event(&event);
+            self.evaluate_event(event);
         }
         Ok(())
     }
@@ -81,23 +81,39 @@ impl Editor {
         self.location = Location {x, y};
         Ok(())
     }
-    fn evaluate_event(&mut self, event: &Event) {
-        if let Key(KeyEvent {
-            code, modifiers, kind: KeyEventKind::Press, ..
-        }) = event
-        {
-            match code {
-                KeyCode::Char('q') if *modifiers == KeyModifiers::CONTROL => {
+    fn evaluate_event(&mut self, event: Event) {
+        match event {
+            Event::Key(KeyEvent {code, modifiers, kind: KeyEventKind::Press, ..})
+         => match (code, modifiers)
+            {
+                (KeyCode::Char('q'), KeyModifiers::CONTROL) => {
                     self.should_quit = true;
                 }
-                KeyCode::Up | KeyCode::Down | KeyCode::Left | KeyCode::Right | KeyCode::PageDown | KeyCode::PageUp | KeyCode::Home | KeyCode::End if *modifiers == KeyModifiers::NONE => {
-                    self.move_point(*code).unwrap();
-                }
+                (
+                    KeyCode::Up | 
+                    KeyCode::Down | 
+                    KeyCode::Left | 
+                    KeyCode::Right | 
+                    KeyCode::PageDown | 
+                    KeyCode::PageUp | 
+                    KeyCode::Home | 
+                    KeyCode::End, 
+                    KeyModifiers::NONE) => {
+                        self.move_point(code).unwrap();
+                    }
                 _ => (),
+            },
+            Event::Resize(width_u16, height_u16) => {
+                #[allow(clippy::as_conversions)]
+                let height = height_u16 as usize;
+                #[allow(clippy::as_conversions)]
+                let width = width_u16 as usize;
+                self.view.resize(Size {height: height, width: width});
             }
+            _ => ()
         }
     }
-    fn refresh_screen(&self) -> Result<(), Error> {
+    fn refresh_screen(&mut self) -> Result<(), Error> {
         Terminal::hide_caret()?;
         Terminal::move_caret_to(Position::default())?;
         if self.should_quit {
