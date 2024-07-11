@@ -3,7 +3,6 @@ use crossterm::{queue, Command};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
 use crossterm::style::Print;
 use std::io::{stdout, Error, Write};
-use core::fmt::Display;
 
 #[derive(Copy, Clone)]
 pub struct Size {
@@ -11,10 +10,10 @@ pub struct Size {
     pub height: usize,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct Position {
-    pub x: u16,
-    pub y: u16,
+    pub col: usize,
+    pub row: usize,
 }
 
 pub struct Terminal;
@@ -28,7 +27,6 @@ impl Terminal {
     pub fn initialize() -> Result<(), Error> {
         enable_raw_mode()?;
         Self::clear_screen()?;
-        Self::move_cursor_to(Position{x:0,y: 0})?;
         Self::execute()?;
         Ok(())
     }
@@ -42,8 +40,9 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn move_cursor_to(position: Position) -> Result<(), Error> {
-        Self::queue_command(MoveTo(position.x, position.y))?;
+    pub fn move_caret_to(position: Position) -> Result<(), Error> {
+        #[allow(clippy::as_conversions, clippy::cast_possible_truncation)]
+        Self::queue_command(MoveTo(position.col as u16, position.row as u16))?;
         Ok(())
     }
     pub fn size() -> Result<Size, Error> {
@@ -52,20 +51,20 @@ impl Terminal {
         let width = width_u16 as usize;
         #[allow(clippy::as_conversions)]
         let height = height_u16 as usize;
-        Ok(Size { width, height })
+        Ok(Size { height, width })
     }
 
-    pub fn hide_cursor() -> Result<(), Error> {
+    pub fn hide_caret() -> Result<(), Error> {
         queue!(stdout(), Hide)?;
         Ok(())
     }
     
-    pub fn show_cursor() -> Result<(), Error> {
+    pub fn show_caret() -> Result<(), Error> {
         Self::queue_command(Show)?;
         Ok(())
     }
     
-    pub fn print<T: Display>(string: T) -> Result<(), Error> {
+    pub fn print(string: &str) -> Result<(), Error> {
         Self::queue_command(Print(string))?;
         Ok(())
     }
