@@ -1,25 +1,25 @@
-#Hecto
+# Hecto
 Terminal text editor built on rust for speed
 
-#Instructions For use
-##Install Rust
+# Instructions For use
+## Install Rust
 <br/>
 
-###Linux or MacOS
+### Linux or MacOS
 ```
 curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```
 
-###Windows
+### Windows
 https://www.rust-lang.org/tools/install
 
-##Clone repo
+## Clone repo
 Run command in the directory you would like to clone in.
 ```
 git clone github.com/Rosnaky/hecto.git
 ```
 
-##Open file
+## Open file
 ```
 cargo run file_name
 ```
