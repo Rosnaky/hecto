@@ -100,7 +100,7 @@ impl View {
 
     fn move_text_location(&mut self, direction: &Direction) {
         let Location {mut x, mut y} = self.location;
-        let Size {height, width} = Terminal::size().unwrap_or_default();
+        let Size {height, ..} = Terminal::size().unwrap_or_default();
 
         match direction {
             Direction::Up => y = y.saturating_sub(1),
@@ -127,9 +127,7 @@ impl View {
                 }
             }
             Direction::PageUp => y = y.saturating_sub(height).saturating_sub(1),
-            
             Direction::PageDown => y = y.saturating_add(height).saturating_sub(1),
-            
             Direction::Home => x = 0,
             Direction::End => x = self.buffer.lines.get(y).map_or(0, |line| line.len()),
         }
