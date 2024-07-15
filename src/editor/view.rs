@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use super::{
     editorcommand::{Direction, EditorCommand}, terminal::{Position, Size, Terminal}
 };
@@ -99,32 +101,40 @@ impl View {
     fn move_text_location(&mut self, direction: &Direction) {
         let Location {mut x, mut y} = self.location;
         let Size {height, width} = Terminal::size().unwrap_or_default();
+
         match direction {
-            Direction::Up => {
-                y = y.saturating_sub(1);
-            }
-            Direction::Down => {
-                y = y.saturating_add(1);
-            }
+            Direction::Up => y = y.saturating_sub(1),
+            
+            Direction::Down => y = y.saturating_add(1),
+            
             Direction::Left => {    
-                x = x.saturating_sub(1);
+                if x > 0 {
+                    x = x.saturating_sub(1);
+                }
+                else if y > 0 {
+                    y = y.saturating_sub(1);
+                    x = self.buffer.lines.get(y).map_or(0, |line| line.len().saturating_sub(1));
+                }
             }
             Direction::Right => {
-                x = x.saturating_add(1);
+                let line_width = self.buffer.lines.get(y).map_or(0, |line| line.len());
+                if x.saturating_add(1) < line_width {
+                    x = x.saturating_add(1);
+                }
+                else {
+                    y = y.saturating_add(1);
+                    x = 0;
+                }
             }
-            Direction::PageUp => {
-                y = 0;
-            }
-            Direction::PageDown => {
-                y = height.saturating_sub(1);
-            }
-            Direction::Home => {
-                x = 0;
-            }
-            Direction::End => {
-                x = width.saturating_sub(1);
-            }
+            Direction::PageUp => y = y.saturating_sub(height).saturating_sub(1),
+            
+            Direction::PageDown => y = y.saturating_add(height).saturating_sub(1),
+            
+            Direction::Home => x = 0,
+            Direction::End => x = self.buffer.lines.get(y).map_or(0, |line| line.len()),
         }
+        x = self.buffer.lines.get(y).map_or(0, |line| min(line.len(), x));
+        y = min(y, self.buffer.lines.len());
         self.location = Location {x, y};
         self.scroll_location_into_view();
     }

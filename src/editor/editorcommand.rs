@@ -1,7 +1,5 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-
 use super::terminal::Size;
-
 
 pub enum Direction {
     Up,
