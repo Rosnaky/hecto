@@ -47,7 +47,10 @@ impl View {
             EditorCommand::Resize(size) => {
                 self.resize(size);
             },
-            EditorCommand::Quit => {}
+            EditorCommand::Quit => {},
+            EditorCommand::Insert(c) => {
+                self.insert_char(c);
+            }
         }
     }
     pub fn load(&mut self, file_name: &str) {
@@ -113,6 +116,22 @@ impl View {
         final_message
     }
     // endregion: Rendering
+    
+    fn insert_char(&mut self, c: char) {
+        let old_len = self.buffer.lines.get(self.text_location.line_index).map_or(0, Line::grapheme_count);
+
+        self.buffer.insert_char(c, self.text_location);
+        let new_len = self.buffer.lines.get(self.text_location.line_index).map_or(0, Line::grapheme_count);
+
+        let grapheme_delta = new_len.saturating_sub(old_len);
+        if grapheme_delta > 0 {
+            self.move_right();
+        }
+        self.needs_redraw = true;
+    }
+    // region: Text Editing
+
+    // endregion: Text Editing
 
     // region: Scrolling
     fn scroll_vertically(&mut self, to: usize) {
