@@ -50,7 +50,9 @@ impl View {
             EditorCommand::Quit => {},
             EditorCommand::Insert(c) => {
                 self.insert_char(c);
-            }
+            },
+            EditorCommand::Delete => self.delete(),
+            EditorCommand::Backspace => self.backspace(),
         }
     }
     pub fn load(&mut self, file_name: &str) {
@@ -115,8 +117,11 @@ impl View {
         final_message.truncate(width);
         final_message
     }
+    
     // endregion: Rendering
     
+    // region: Text Editing
+
     fn insert_char(&mut self, c: char) {
         let old_len = self.buffer.lines.get(self.text_location.line_index).map_or(0, Line::grapheme_count);
 
@@ -129,7 +134,18 @@ impl View {
         }
         self.needs_redraw = true;
     }
-    // region: Text Editing
+    fn backspace(&mut self) {
+        if self.text_location.grapheme_index == 0 && self.text_location.line_index == 0 {
+            return;
+        }
+
+        self.move_left();
+        self.delete();
+    }
+    fn delete(&mut self) {
+        self.buffer.delete(self.text_location);
+        self.needs_redraw = true;
+    }
 
     // endregion: Text Editing
 
@@ -229,7 +245,7 @@ impl View {
     fn move_left(&mut self) {
         if self.text_location.grapheme_index > 0 {
             self.text_location.grapheme_index -= 1;
-        } else {
+        } else if self.text_location.line_index > 0 {
             self.move_up(1);
             self.move_to_end_of_line();
         }

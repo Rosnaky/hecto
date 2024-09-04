@@ -16,7 +16,9 @@ pub enum EditorCommand {
     Move(Direction),
     Resize(Size),
     Quit,
-    Insert(char)
+    Insert(char),
+    Backspace,
+    Delete
 }
 
 #[allow(clippy::as_conversions)]
@@ -30,6 +32,8 @@ impl TryFrom<Event> for EditorCommand {
             }) => match (code, modifiers) {
                 (KeyCode::Char('q'), KeyModifiers::CONTROL) => Ok(Self::Quit),
                 (KeyCode::Char(character), KeyModifiers::NONE | KeyModifiers::SHIFT) => Ok(Self::Insert(character)),
+                (KeyCode::Backspace, KeyModifiers::NONE) => Ok(Self::Backspace),
+                (KeyCode::Delete, KeyModifiers::NONE) => Ok(Self::Delete),
                 (KeyCode::Up, KeyModifiers::NONE) => Ok(Self::Move(Direction::Up)),
                 (KeyCode::Down, KeyModifiers::NONE) => Ok(Self::Move(Direction::Down)),
                 (KeyCode::Left, KeyModifiers::NONE) => Ok(Self::Move(Direction::Left)),
