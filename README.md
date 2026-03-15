@@ -1,5 +1,6 @@
-# Hecto
+# Rim
 Terminal text editor built on rust for speed
+vim for rust
 
 # Instructions For use
 ## Install Rust
