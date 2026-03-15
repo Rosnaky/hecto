@@ -16,7 +16,7 @@ https://www.rust-lang.org/tools/install
 ## Clone repo
 Run command in the directory you would like to clone in.
 ```
-git clone github.com/Rosnaky/hecto.git
+git clone github.com/Rosnaky/rim.git
 ```
 <br/>
 
